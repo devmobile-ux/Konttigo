@@ -23,7 +23,7 @@ const steps = [
 
 export default function InstallEsim() {
   return (
-    <section className="bg-[#FFFFFF] py-8">
+    <section className="bg-[#FFFFFF]">
       <div className="max-w-7xl mx-auto px-6 text-center">
 
         

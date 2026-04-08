@@ -11,7 +11,7 @@ import { getMinPrice, slugToIso, type EsimCountry } from "@/lib/api";
 // API base — mirror konttigo-web's pattern exactly
 // ──────────────────────────────────────────────
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:80/konttigo-backend";
+  process.env.NEXT_PUBLIC_API_URL || "http://Countryhost:80/konttigo-backend";
 
 async function apiGetPackages(params: Record<string, string>): Promise<EsimCountry[]> {
   const query = new URLSearchParams(params).toString();
@@ -24,10 +24,10 @@ async function apiGetPackages(params: Record<string, string>): Promise<EsimCount
 }
 
 // konttigo-web pattern:
-//   local   → page=1&limit=177
+//   Country   → page=1&limit=177
 //   regional → filter[type]=global  (same as global data, region renderer shows ALL)
 //   global  → filter[type]=global   (then we filter slug==="world" or type==="global")
-async function fetchLocalApi(): Promise<EsimCountry[]> {
+async function fetchCountryApi(): Promise<EsimCountry[]> {
   return apiGetPackages({ page: "1", limit: "177" });
 }
 
@@ -38,8 +38,8 @@ async function fetchGlobalApi(): Promise<EsimCountry[]> {
 // ──────────────────────────────────────────────
 // Types & tabs
 // ──────────────────────────────────────────────
-type TabKey = "Popular" | "Local" | "Regional" | "Global";
-const TABS: TabKey[] = ["Popular", "Local", "Regional", "Global"];
+type TabKey = "Popular" | "Country" | "Regional" | "Global";
+const TABS: TabKey[] = ["Popular", "Country", "Regional", "Global"];
 
 // Region icon helper
 const regionIconMap: Record<string, string> = {
@@ -87,8 +87,8 @@ const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 // ──────────────────────────────────────────────
 // Main component
 // ──────────────────────────────────────────────
-export default function Destination() {
-  const [activeTab, setActiveTab] = useState<TabKey>("Popular");
+export default function Destination({ limit = 9 }: { limit?: number }) {
+  const [activeTab, setActiveTab] = useState<TabKey>("Country");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -119,9 +119,9 @@ export default function Destination() {
       try {
         let rawData: EsimCountry[] = [];
 
-        if (activeTab === "Local" || activeTab === "Popular") {
-          // konttigo-web: fetchPackages("local") → page=1&limit=177
-          rawData = await fetchLocalApi();
+        if (activeTab === "Country" || activeTab === "Popular") {
+          // konttigo-web: fetchPackages("Country") → page=1&limit=177
+          rawData = await fetchCountryApi();
         } else {
           // konttigo-web: regional → fetchPackages("global"), global → fetchGlobalPackages()
           // BOTH call filter[type]=global — then rendering differentiates them
@@ -136,7 +136,7 @@ export default function Destination() {
         // For Popular: shuffle and show top 9 (konttigo-web: getRandomPopularESIMs)
         if (activeTab === "Popular") {
           const shuffled = [...rawData].sort(() => 0.5 - Math.random());
-          setDisplayData(shuffled.slice(0, 9));
+          setDisplayData(shuffled.slice(0, limit));
         } else if (activeTab === "Global") {
           // konttigo-web: filter for world/global type only
           const globalOnly = rawData.filter(
@@ -144,7 +144,7 @@ export default function Destination() {
           );
           setDisplayData(globalOnly.length > 0 ? globalOnly : rawData);
         } else {
-          // Local and Regional: show all
+          // Country and Regional: show all
           setDisplayData(rawData);
         }
       } catch (err) {
@@ -163,10 +163,10 @@ export default function Destination() {
   const goToRegion = (name: string) =>
     router.push(`/region/${name.toLowerCase().replace(/\s+/g, "-")}`);
 
-  // ── Render: country grid (Popular / Local) ──
+  // ── Render: country grid (Popular / Country) ──
   const renderCountryGrid = () => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {displayData.map((c, i) => {
+      {displayData.slice(0, limit).map((c, i) => {
         const minPrice = getMinPrice(c);
         const code = slugToIso(c.slug);
         return (
@@ -211,7 +211,7 @@ export default function Destination() {
   // konttigo-web shows ALL entries returned by filter[type]=global for regional tab
   const renderRegionalGrid = () => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {displayData.map((r, i) => {
+      {displayData.slice(0, limit).map((r, i) => {
         const minPrice = getMinPrice(r);
         const icon = getRegionIcon(r.title);
         return (
@@ -242,7 +242,7 @@ export default function Destination() {
   // konttigo-web filters for slug==="world" || type==="global"
   const renderGlobalGrid = () => (
     <div className="flex flex-wrap gap-4">
-      {displayData.map((g, i) => {
+      {displayData.slice(0, limit).map((g, i) => {
         const minPrice = getMinPrice(g);
         return (
           <div
@@ -287,7 +287,7 @@ export default function Destination() {
 
     switch (activeTab) {
       case "Popular":
-      case "Local":
+      case "Country":
         return renderCountryGrid();
       case "Regional":
         return renderRegionalGrid();
@@ -336,13 +336,9 @@ export default function Destination() {
         <div className="min-h-[300px]">{renderContent()}</div>
 
         {/* VIEW MORE */}
-        <div className="flex justify-center mt-10">
+        <div className="flex justify-center">
           <button
-            onClick={() => {
-              if (activeTab === "Regional") router.push("/region/europe");
-              else if (activeTab === "Global") router.push("/global");
-              else router.push("/country/india");
-            }}
+            onClick={() => router.push("/alldestination")}
             className="border border-primary-500 text-primary-500 px-8 py-3 rounded-xl hover:bg-primary-100 transition"
           >
             Explore All Destinations
