@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FaUser } from "react-icons/fa";
 import { FaEarthAmericas } from "react-icons/fa6";
 
+
 export default function Navbar() {
   return (
     <nav className="bg-transparent">
@@ -12,6 +13,7 @@ export default function Navbar() {
 
         {/* LEFT: Logo */}
         <div className="flex items-center">
+          <Link href="/">
           <Image
             src="/logo.png"
             alt="Konttigo Logo"
@@ -19,6 +21,7 @@ export default function Navbar() {
             height={45}
             priority
           />
+          </Link>
         </div>
 
         {/* CENTER: Menu */}

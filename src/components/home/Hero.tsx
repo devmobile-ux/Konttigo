@@ -47,7 +47,7 @@ export default function Hero() {
 
           {/* ITEM 1 */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 flex items-center justify-center rounded-full border border-primary-500">
+            <div className="w-9 h-9 flex items-center justify-center rounded-full border border-primary-500 text-primary-500">
               <Image src="/secure.png" alt="secure" width={16} height={16} />
             </div>
             <p className="text-sm text-textSecondary">Secure Connections</p>

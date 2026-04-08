@@ -8,7 +8,7 @@ import { MdSignalCellularAlt, MdPhoneIphone, MdApartment } from "react-icons/md"
 import { FiShoppingBag } from "react-icons/fi";
 import { BsCheck2Circle } from "react-icons/bs";
 import { getLocalPackages, slugToIso, type EsimCountry, type EsimPackage } from "@/lib/api";
-
+import { useRouter } from "next/navigation";
 // ────────────────────────────────────────────────────────────
 // Skeleton loaders
 // ────────────────────────────────────────────────────────────
@@ -30,6 +30,8 @@ export default function CountryDetails({ country }: { country: string }) {
   const [plans, setPlans] = useState<EsimPackage[]>([]);
   const [selected, setSelected] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [isCompatible, setIsCompatible] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Normalize slug: "sri lanka" → "sri-lanka" for matching
@@ -101,6 +103,7 @@ export default function CountryDetails({ country }: { country: string }) {
       </section>
     );
   }
+  const router = useRouter();
 
   // ── Error state ────────────────────────────────────────────
   if (error || !plan) {
@@ -114,6 +117,9 @@ export default function CountryDetails({ country }: { country: string }) {
     );
   }
 
+
+
+  
   // ── Main render ────────────────────────────────────────────
   return (
     <section className="bg-[#FFFFFF] py-10">
@@ -266,8 +272,21 @@ export default function CountryDetails({ country }: { country: string }) {
                     </button>
                   </div>
 
+                  
+
                   {/* Buy */}
-                  <button className="w-full bg-primary-500 text-white py-3 rounded-xl font-medium shadow-md flex items-center justify-center gap-2">
+                  <button  disabled={!isCompatible}
+                    onClick={() =>
+                     router.push(
+                      `/checkout?type=country&name=${country}&data=${plan.data}&duration=${plan.day}&price=${plan.price}`
+                    )
+                    }
+                    className={`w-full py-3 rounded-xl font-medium shadow-md flex items-center justify-center gap-2 ${
+                      isCompatible
+                        ? "bg-primary-500 text-white hover:bg-primary-600"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    }`}
+                  >
                     <FiShoppingBag />
                     Buy Now
                   </button>
@@ -279,7 +298,9 @@ export default function CountryDetails({ country }: { country: string }) {
               </div>
 
               {/* Check device */}
-              <button className="w-full mt-4 bg-primary-500 text-white py-3 rounded-xl font-medium shadow flex items-center justify-center gap-2">
+              <button 
+              onClick = {() => setShowModal(true)}
+              className="w-full mt-4 bg-primary-500 text-white py-3 rounded-xl font-medium shadow flex items-center justify-center gap-2">
                 <MdPhoneIphone />
                 Check Device Compatibility
               </button>
@@ -351,6 +372,79 @@ export default function CountryDetails({ country }: { country: string }) {
         </div>
 
       </div>
+      {showModal && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    
+    <div className="bg-white w-[90%] md:w-[600px] max-h-[80vh] overflow-y-auto rounded-2xl p-6 relative">
+
+      {/* CLOSE */}
+      <button
+        onClick={() => setShowModal(false)}
+        className="absolute top-4 right-4 text-gray-500 text-xl"
+      >
+        ✕
+      </button>
+
+      {/* TITLE */}
+      <h2 className="text-2xl font-semibold text-primary-500 mb-4">
+        Device Compatibility
+      </h2>
+
+      <h3 className="text-lg font-medium mb-4">
+        What devices support eSIM?
+      </h3>
+
+      {/* INFO BOX */}
+      <div className="bg-gray-100 rounded-xl p-4 mb-4 space-y-2">
+        <p className="flex items-center gap-2 text-sm">
+          ✅ The device supports eSIMs
+        </p>
+        <p className="flex items-center gap-2 text-sm">
+          ✅ The device is not carrier-locked
+        </p>
+        <p className="flex items-center gap-2 text-sm">
+          ✅ The device is not rooted or jailbroken
+        </p>
+      </div>
+
+      {/* NOTE */}
+      <p className="text-sm text-gray-600 mb-3">
+        You can check if your device supports eSIM. Some regional models may not support it.
+      </p>
+
+      <p className="text-xs text-gray-400 mb-4">
+        This list is temporary for demo purposes.
+      </p>
+
+      {/* SEARCH */}
+      <input
+        placeholder="Search devices..."
+        className="w-full border rounded-xl px-4 py-2 mb-4"
+      />
+
+      {/* SAMPLE DEVICES */}
+      <div className="text-sm space-y-2 mb-6">
+        <p>• iPhone 13, 14, 15 series</p>
+        <p>• Samsung Galaxy S21, S22, S23</p>
+        <p>• Google Pixel 6, 7, 8</p>
+        <p>• iPad Pro (latest models)</p>
+      </div>
+
+      {/* ACCEPT BUTTON */}
+      <button
+        onClick={() => {
+          setIsCompatible(true);
+          setShowModal(false);
+        }}
+        className="w-full bg-primary-500 text-white py-3 rounded-xl font-medium shadow"
+      >
+        Read and accept
+      </button>
+
+    </div>
+  </div>
+)}
+
     </section>
   );
 }
