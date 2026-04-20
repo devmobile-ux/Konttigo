@@ -8,7 +8,7 @@ import { FaEarthAmericas } from "react-icons/fa6";
 
 export default function Navbar() {
   return (
-    <nav className="bg-transparent">
+    <nav className="bg-[#FFFADA]">
       <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
 
         {/* LEFT: Logo */}

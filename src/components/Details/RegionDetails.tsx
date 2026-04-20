@@ -156,12 +156,17 @@ export default function RegionDetails({ region }: { region: string }) {
               width={28}
               height={28}
             />
-            eSIM for{" "}
-            <span className="text-primary-500 capitalize">{region}</span>
+            eSIM for the {region} -
+            <span className="text-primary-500 capitalize">Prepaid & Unlimited Data Plans</span>
           </h1>
-          <p className="text-sm text-gray-500 mt-2">
-            Get an eSIM for {region} and enjoy reliable and affordable internet access on your trip.
+          <p className="text-md text-gray-500 mt-2">
+            Traveling across the {region}? Get the best eSIM for the {region} starting from $4.99.<br/> Our eSIM USA data plans provide affordable prepaid & unlimited internet, instant<br/> activation, and reliable coverage across major cities and destinations.
           </p>
+
+          <h2 className="text-3xl font-semibold flex items-center justify-center gap-2 mt-8">
+           Choose <span className="text-primary-500 capitalize">{region}</span> eSIM Data Plan
+           
+          </h2>
 
           {/* TOGGLE */}
           <div className="flex justify-center mt-4">

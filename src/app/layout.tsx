@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={lexend.className}>
-        <div className="bg-[#FFFADA]">
+        <div className="bg-[#FFFFFF]">
           <Navbar />
           {children}
           <Footer />
